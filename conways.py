@@ -114,7 +114,7 @@ def advance(screen):
 
 # constants
 HEIGHT = 50
-WIDTH = 50
+WIDTH = 100 
 
 # program begin
 screen = createScreen(WIDTH, HEIGHT)
@@ -132,7 +132,7 @@ birth(screen, 7,5)
 birth(screen, 7,4)
 
 
-for _ in range(500):
+for _ in range(int((WIDTH * HEIGHT) / 8)):
     birth(screen, randint(0, WIDTH-1), randint(0, HEIGHT-1))
 
 drawScreen(screen)
