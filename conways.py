@@ -1,6 +1,7 @@
 # imports
 import enum
 import os
+from random import randint
 # enum class stuff
 class CellState(enum.Enum):
     DEAD = 0
@@ -21,14 +22,20 @@ class Cell():
             self.neighbors = 0
 
 # helper functions
-def drawScreen(screen: list):
-    for row in screen:
-        for cell in row:
-            if cell.cellstate == CellState.ALIVE:
-                print("#", end = " ")
-            else: 
-                print(" ", end = " ")
+def drawScreen(screen: list[list[Cell]]):
+    def stuff(row):
+        list(map(lambda cell: print("#" if cell.cellstate == CellState.ALIVE else " ", end=" "), row))
         print()
+
+    list(map(lambda row: stuff(row), screen))
+
+#    for row in screen:
+#        for cell in row:
+#            if cell.cellstate == CellState.ALIVE:
+#                print("#", end = " ")
+#            else: 
+#                print(" ", end = " ")
+#        print()
 
 def neighboringPositions(x: int, y: int) -> list[tuple[int, int]]:
     positions = [
@@ -45,9 +52,7 @@ def createScreen(width, height):
 # rules
 #   Any live cell with fewer than two live neighbours dies, as if by underpopulation.
 #   Any live cell with two or three live neighbours lives on to the next generation.
-#   Any live cell with more than three live neighbours dies, as if by overpopulation.
-#   Any dead cell with exactly three live neighbours becomes a live cell, as if by reproduction.
-
+#   Any live cell with more than three live neighbours dies, as if by overpopulation. Any dead cell with exactly three live neighbours becomes a live cell, as if by reproduction.
 # condensed Any live cell with two or three live neighbours survives.
 #   Any dead cell with three live neighbours becomes a live cell.
 #   All other live cells die in the next generation. Similarly, all other dead cells stay dead.
@@ -104,11 +109,12 @@ def purge(screen: list[list[Cell]], life: list[tuple[int, int]], death: list[tup
 def advance(screen):
     (life, death) = checkCells(screen)
     purge(screen, life, death)
+    os.system("clear") # demolishing windows with a single line. im sure theres a better way to do this
     drawScreen(screen)
 
 # constants
-HEIGHT = 25
-WIDTH = 25
+HEIGHT = 50
+WIDTH = 50
 
 # program begin
 screen = createScreen(WIDTH, HEIGHT)
@@ -124,6 +130,10 @@ birth(screen, 6,6)
 birth(screen, 7,6)
 birth(screen, 7,5)
 birth(screen, 7,4)
+
+
+for _ in range(500):
+    birth(screen, randint(0, WIDTH-1), randint(0, HEIGHT-1))
 
 drawScreen(screen)
 while True:
