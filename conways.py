@@ -71,7 +71,6 @@ def checkCells(screen: list[list[Cell]]):
 def kill(screen, x, y): 
     screen[y][x].cellstate = CellState.DEAD
 
-    # should not be needed on buffer system?
     for neighbor_pos in neighboringPositions(x, y):
         try:
             screen[neighbor_pos[1]][neighbor_pos[0]].dec_neighbors()
