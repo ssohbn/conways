@@ -57,13 +57,14 @@ def checkCells(screen: list[list[Cell]]):
 
     for (y, row) in enumerate(screen):
         for (x, cell) in enumerate(row):
-
-            if cell.neighbors < 2 or cell.neighbors > 3:
-                death.append((x, y))
-            elif cell.neighbors == 3:
-                    life.append((x, y))
-            elif cell.cellstate == CellState.ALIVE and cell.neighbors == 2:
+            if cell.neighbors == 3:
                 life.append((x, y))
+            elif cell.cellstate == CellState.ALIVE:
+                if cell.neighbors == 2:
+                    life.append((x, y))
+                else:
+                    # cell.neighbors < 2 or cell.neighbors > 3:
+                    death.append((x, y))
 
     return (life, death)
 
@@ -88,24 +89,23 @@ def birth(screen, x, y):
 
     screen[y][x].cellstate = CellState.ALIVE
 
-def purge(buffer: list[list[Cell]], life: list[tuple[int, int]], death: list[tuple[int, int]]):
+def purge(screen: list[list[Cell]], life: list[tuple[int, int]], death: list[tuple[int, int]]):
 
-#    for cellpos in death:
-#        x = cellpos[0]
-#        y = cellpos[1]
-#        kill(buffer, x, y)
+    for cellpos in death:
+        x = cellpos[0]
+        y = cellpos[1]
+        kill(screen, x, y)
 
     for cellpos in life:
         x = cellpos[0]
         y = cellpos[1]
-        birth(buffer, x, y)
+        birth(screen, x, y)
 
 
-def advance(screen, buffer):
+def advance(screen):
     (life, death) = checkCells(screen)
-    purge(buffer, life, death)
-    drawScreen(buffer)
-    return buffer
+    purge(screen, life, death)
+    drawScreen(screen)
 
 # constants
 HEIGHT = 25
@@ -128,6 +128,5 @@ birth(screen, 7,4)
 
 drawScreen(screen)
 while True:
-    buffer = createScreen(WIDTH, HEIGHT)
     input("press a key")
-    screen = advance(screen, buffer)
+    advance(screen)
