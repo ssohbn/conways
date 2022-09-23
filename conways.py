@@ -29,14 +29,6 @@ def drawScreen(screen: list[list[Cell]]):
 
     list(map(lambda row: stuff(row), screen))
 
-#    for row in screen:
-#        for cell in row:
-#            if cell.cellstate == CellState.ALIVE:
-#                print("#", end = " ")
-#            else: 
-#                print(" ", end = " ")
-#        print()
-
 def neighboringPositions(x: int, y: int) -> list[tuple[int, int]]:
     positions = [
             (x-1, y+1), (x, y+1), (x+1, y+1), 
@@ -49,7 +41,7 @@ def createScreen(width, height):
     screen = list(map(lambda x: list(map(lambda x: Cell(), range(width))), range(height)))
     return screen
 
-# rules
+# rules ( from wikipedia )
 #   Any live cell with fewer than two live neighbours dies, as if by underpopulation.
 #   Any live cell with two or three live neighbours lives on to the next generation.
 #   Any live cell with more than three live neighbours dies, as if by overpopulation. Any dead cell with exactly three live neighbours becomes a live cell, as if by reproduction.
@@ -73,7 +65,7 @@ def checkCells(screen: list[list[Cell]]):
 
     return (life, death)
 
-def kill(screen, x, y): 
+def kill(screen: list[list[Cell]], x, y): 
     screen[y][x].cellstate = CellState.DEAD
 
     for neighbor_pos in neighboringPositions(x, y):
@@ -82,7 +74,7 @@ def kill(screen, x, y):
         except IndexError:
             pass
 
-def birth(screen, x, y):
+def birth(screen: list[list[Cell]], x: int, y: int):
 
     if screen[y][x].cellstate == CellState.DEAD:
         for neighbor_pos in neighboringPositions(x, y):
