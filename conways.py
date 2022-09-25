@@ -9,7 +9,7 @@ from random import randint
 # helper functions
 def drawScreen(screen: list[list[Cell]]):
     def stuff(row):
-        list(map(lambda cell: print(cell.neighbors if cell.cellstate == CellState.ALIVE else " ", end=" "), row))
+        list(map(lambda cell: print("#" if cell.cellstate == CellState.ALIVE else " ", end=" "), row))
         print()
 
     list(map(lambda row: stuff(row), screen))
