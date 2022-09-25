@@ -62,12 +62,6 @@ def kill(screen: list[list[Cell]], x, y):
         screen[ny][nx].dec_neighbors()
 
 def birth(screen: list[list[Cell]], x: int, y: int):
-    if x < 0 or x > len(screen[0]) or y < 0 or y > len(screen):
-        print("why is there a negative im going insane and will be exiting")
-        exit(-1)
-
-    print(f"{x}, {y}")
-
     if screen[y][x].cellstate == CellState.DEAD:
         for neighbor_pos in neighboring_positions(x, y):
 
