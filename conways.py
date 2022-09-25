@@ -43,11 +43,12 @@ def check_cells(screen: list[list[Cell]]):
     return (life, death)
 
 def wrap_screen(screen, x, y):
-    if x == len(screen):
+    if y == len(screen):
+        y = 0
+
+    if x == len(screen[0]):
         x = 0
 
-    if y == len(screen[0]):
-        y = 0
     return (x, y)
 
 def kill(screen: list[list[Cell]], x, y): 
@@ -92,16 +93,19 @@ def create_glider(screen, x, y):
     birth(screen, x+2,y-1)
 
 # constants
-HEIGHT = 10
-WIDTH = 10
-CHANCE = 0
+HEIGHT = 50
+WIDTH = 70
+CHANCE = 20 # higher =  lower
 
 # program begin
 screen = create_screen(WIDTH, HEIGHT)
 
 if CHANCE != 0:
-    for _ in range(int((WIDTH * HEIGHT) / CHANCE)):
-        birth(screen, randint(0, WIDTH-1), randint(0, HEIGHT-1))
+    for _ in range(0, int((WIDTH * HEIGHT) / CHANCE)):
+        randx = randint(0, WIDTH-1)
+        randy = randint(0, HEIGHT-1)
+
+        birth(screen, randx, randy)
 
 # glider
 create_glider(screen, 5, 5)
