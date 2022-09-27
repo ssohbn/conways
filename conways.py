@@ -1,20 +1,20 @@
 # imports
 import pygame
 
-
 from cell import CellState
 from cell import Cell
 
 from random import randint
 
+
+
 # helper functions
 def draw_board(screen: pygame.surface.Surface, living: list[tuple[int, int]], width, height):
-
     screen.fill((255,255,255))
-
-    for cell in living:
-        pygame.draw.rect(screen, (0,0,0), pygame.Rect((cell[0]*width, cell[1]*height, width, height)))
-
+#    tpool.map(lambda cell: pygame.draw.rect(screen, (0,0,0), pygame.Rect((cell[0]*width, cell[1]*height, width, height))), living)
+#    list(executor.map(lambda cell: pygame.draw.rect(screen, (0,0,0), pygame.Rect((cell[0]*width, cell[1]*height, width, height))), living))
+#    list(executor.map(lambda cell: pygame.draw.rect(screen, (0,0,0), pygame.Rect((cell[0]*width, cell[1]*height, width, height))), living))
+    list(map(lambda cell: pygame.draw.rect(screen, (0,0,0), pygame.Rect((cell[0]*width, cell[1]*height, width, height))), living))
 
 def create_board(width, height):
     # cells dont need a position if they are dead.
@@ -120,8 +120,9 @@ while True:
     screen.fill((255,255,255))
     (life, death) = check_cells(board)
     purge(board, life, death)
-    print(life)
     draw_board(screen, life, SCREEN_WIDTH/BOARD_WIDTH, SCREEN_HEIGHT/BOARD_HEIGHT)
 
     pygame.display.update()
     clock.tick(FPS)
+
+    print(clock.get_fps())
