@@ -1,5 +1,6 @@
 # imports
-import os
+import pygame
+
 
 from cell import CellState
 from cell import Cell
@@ -7,16 +8,18 @@ from cell import Cell
 from random import randint
 
 # helper functions
-def drawScreen(screen: list[list[Cell]]):
-    def stuff(row):
-        list(map(lambda cell: print("#" if cell.cellstate == CellState.ALIVE else " ", end=" "), row))
-        print()
+def draw_board(screen: pygame.surface.Surface, living: list[tuple[int, int]], width, height):
 
-    list(map(lambda row: stuff(row), screen))
+    screen.fill((255,255,255))
 
-def create_screen(width, height):
-    screen = list(map(lambda _: list(map(lambda _: Cell(), range(width))), range(height)))
-    return screen
+    for cell in living:
+        pygame.draw.rect(screen, (0,0,0), pygame.Rect((cell[0]*width, cell[1]*height, width, height)))
+
+
+def create_board(width, height):
+    # cells dont need a position if they are dead.
+    board= list(map(lambda _: list(map(lambda _: Cell(-1, -1), range(width))), range(height)))
+    return board
 
 def neighboring_positions(x: int, y: int) -> list[tuple[int, int]]:
     positions = [
@@ -25,11 +28,11 @@ def neighboring_positions(x: int, y: int) -> list[tuple[int, int]]:
             (x-1, y-1), (x, y-1), (x+1, y-1)]
     return positions
 
-def check_cells(screen: list[list[Cell]]):
+def check_cells(board: list[list[Cell]]):
     death = []
     life = []
 
-    for (y, row) in enumerate(screen):
+    for (y, row) in enumerate(board):
         for (x, cell) in enumerate(row):
             if cell.neighbors == 3:
                 life.append((x, y))
@@ -42,77 +45,83 @@ def check_cells(screen: list[list[Cell]]):
 
     return (life, death)
 
-def wrap_screen(screen, x, y):
-    if y == len(screen):
+def wrap_board(board, x, y):
+    if y == len(board):
         y = 0
 
-    if x == len(screen[0]):
+    if x == len(board[0]):
         x = 0
 
     return (x, y)
 
-def kill(screen: list[list[Cell]], x, y): 
-    screen[y][x].cellstate = CellState.DEAD
+def kill(board: list[list[Cell]], x, y): 
+    board[y][x].cellstate = CellState.DEAD
 
     for neighbor_pos in neighboring_positions(x, y):
         nx = neighbor_pos[0]
         ny = neighbor_pos[1]
 
-        (nx, ny) = wrap_screen(screen, nx, ny)
+        (nx, ny) = wrap_board(board, nx, ny)
 
-        screen[ny][nx].dec_neighbors()
+        board[ny][nx].dec_neighbors()
 
-def birth(screen: list[list[Cell]], x: int, y: int):
-    if screen[y][x].cellstate == CellState.DEAD:
+def birth(board: list[list[Cell]], x: int, y: int):
+    if board[y][x].cellstate == CellState.DEAD:
         for neighbor_pos in neighboring_positions(x, y):
 
-            (nx, ny) = wrap_screen(screen, neighbor_pos[0], neighbor_pos[1])
+            (nx, ny) = wrap_board(board, neighbor_pos[0], neighbor_pos[1])
 
-            screen[ny][nx].inc_neighbors()
+            board[ny][nx].inc_neighbors()
 
-    screen[y][x].cellstate = CellState.ALIVE
+    board[y][x].cellstate = CellState.ALIVE
 
-def purge(screen: list[list[Cell]], life: list[tuple[int, int]], death: list[tuple[int, int]]):
+def purge(board: list[list[Cell]], life: list[tuple[int, int]], death: list[tuple[int, int]]):
     for cellpos in death:
-        kill(screen, cellpos[0], cellpos[1])
+        kill(board, cellpos[0], cellpos[1])
 
     for cellpos in life:
-        birth(screen, cellpos[0], cellpos[1])
+        birth(board, cellpos[0], cellpos[1])
 
 
-def advance(screen):
-    (life, death) = check_cells(screen)
-    purge(screen, life, death)
-    drawScreen(screen)
 
-def create_glider(screen, x, y):
-    birth(screen, x,y)
-    birth(screen, x+1, y+1)
-    birth(screen, x+2,y+1)
-    birth(screen, x+2,y)
-    birth(screen, x+2,y-1)
+def create_glider(board, x, y):
+    birth(board, x,y)
+    birth(board, x+1, y+1)
+    birth(board, x+2,y+1)
+    birth(board, x+2,y)
+    birth(board, x+2,y-1)
 
 # constants
-HEIGHT = 50
-WIDTH = 70
-CHANCE = 20 # higher =  lower
+BOARD_HEIGHT = 250
+BOARD_WIDTH = 250
+CHANCE = 4 # higher =  lower
+
+SCREEN_HEIGHT = 1000
+SCREEN_WIDTH = 1000
+FPS = 30
 
 # program begin
-screen = create_screen(WIDTH, HEIGHT)
+board = create_board(BOARD_WIDTH, BOARD_HEIGHT)
+
+clock = pygame.time.Clock()
+screen = displaysurface = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
+pygame.display.set_caption("conways")
 
 if CHANCE != 0:
-    for _ in range(0, int((WIDTH * HEIGHT) / CHANCE)):
-        randx = randint(0, WIDTH-1)
-        randy = randint(0, HEIGHT-1)
+    for _ in range(0, int((BOARD_WIDTH * BOARD_HEIGHT) / CHANCE)):
+        randx = randint(0, BOARD_WIDTH-1)
+        randy = randint(0, BOARD_HEIGHT-1)
 
-        birth(screen, randx, randy)
+        birth(board, randx, randy)
 
-# glider
-create_glider(screen, 5, 5)
+create_glider(board, 5, 5)
 
-drawScreen(screen)
 while True:
-    input("press a key")
-    os.system("clear") # demolishing windows with a single line. im sure theres a better way to do this
-    advance(screen)
+    screen.fill((255,255,255))
+    (life, death) = check_cells(board)
+    purge(board, life, death)
+    print(life)
+    draw_board(screen, life, SCREEN_WIDTH/BOARD_WIDTH, SCREEN_HEIGHT/BOARD_HEIGHT)
 
+    pygame.display.update()
+    clock.tick(FPS)
