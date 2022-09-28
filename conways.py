@@ -9,8 +9,6 @@ from cell import Cell
 
 from random import randint
 
-
-
 # helper functions
 def draw_board(screen: pygame.surface.Surface, living: list[tuple[int, int]], dead: list[tuple[int,int]], width: int, height: int):
 
