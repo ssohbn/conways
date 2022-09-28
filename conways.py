@@ -1,5 +1,8 @@
 # imports
 import pygame
+import functools
+
+import rways
 
 from cell import CellState
 from cell import Cell
@@ -9,11 +12,10 @@ from random import randint
 
 
 # helper functions
-def draw_board(screen: pygame.surface.Surface, living: list[tuple[int, int]], width, height):
-    screen.fill((255,255,255))
-#    tpool.map(lambda cell: pygame.draw.rect(screen, (0,0,0), pygame.Rect((cell[0]*width, cell[1]*height, width, height))), living)
-#    list(executor.map(lambda cell: pygame.draw.rect(screen, (0,0,0), pygame.Rect((cell[0]*width, cell[1]*height, width, height))), living))
-#    list(executor.map(lambda cell: pygame.draw.rect(screen, (0,0,0), pygame.Rect((cell[0]*width, cell[1]*height, width, height))), living))
+def draw_board(screen: pygame.surface.Surface, living: list[tuple[int, int]], dead: list[tuple[int,int]], width: int, height: int):
+
+    list(map(lambda cell: pygame.draw.rect(screen, (255,255,255), pygame.Rect((cell[0]*width, cell[1]*height, width, height))), dead))
+
     list(map(lambda cell: pygame.draw.rect(screen, (0,0,0), pygame.Rect((cell[0]*width, cell[1]*height, width, height))), living))
 
 def create_board(width, height):
@@ -21,6 +23,7 @@ def create_board(width, height):
     board= list(map(lambda _: list(map(lambda _: Cell(-1, -1), range(width))), range(height)))
     return board
 
+@functools.cache
 def neighboring_positions(x: int, y: int) -> list[tuple[int, int]]:
     positions = [
             (x-1, y+1), (x, y+1), (x+1, y+1), 
@@ -28,32 +31,38 @@ def neighboring_positions(x: int, y: int) -> list[tuple[int, int]]:
             (x-1, y-1), (x, y-1), (x+1, y-1)]
     return positions
 
+# slow
 def check_cells(board: list[list[Cell]]):
-    death = []
     life = []
+    death = []
+
+    def thing(cell: Cell, x: int, y: int):
+        if cell.neighbors == 3:
+            life.append((x, y))
+
+        elif cell.cellstate == CellState.ALIVE:
+            if cell.neighbors == 2:
+                life.append((x, y))
+            else:
+                # cell.neighbors < 2 or cell.neighbors > 3:
+                death.append((x, y))
 
     for (y, row) in enumerate(board):
-        for (x, cell) in enumerate(row):
-            if cell.neighbors == 3:
-                life.append((x, y))
-            elif cell.cellstate == CellState.ALIVE:
-                if cell.neighbors == 2:
-                    life.append((x, y))
-                else:
-                    # cell.neighbors < 2 or cell.neighbors > 3:
-                    death.append((x, y))
+        list(map(lambda j: thing(j[1], j[0], y), enumerate(row)))
 
     return (life, death)
 
-def wrap_board(board, x, y):
-    if y == len(board):
+@functools.cache
+def wrap_board(board_width: int, board_height: int, x: int, y: int):
+    if y == board_height:
         y = 0
 
-    if x == len(board[0]):
+    if x == board_width:
         x = 0
 
     return (x, y)
 
+#slow
 def kill(board: list[list[Cell]], x, y): 
     board[y][x].cellstate = CellState.DEAD
 
@@ -61,28 +70,37 @@ def kill(board: list[list[Cell]], x, y):
         nx = neighbor_pos[0]
         ny = neighbor_pos[1]
 
-        (nx, ny) = wrap_board(board, nx, ny)
+        (nx, ny) = wrap_board(len(board[0]), len(board), nx, ny)
 
         board[ny][nx].dec_neighbors()
 
+#slow
 def birth(board: list[list[Cell]], x: int, y: int):
     if board[y][x].cellstate == CellState.DEAD:
         for neighbor_pos in neighboring_positions(x, y):
 
-            (nx, ny) = wrap_board(board, neighbor_pos[0], neighbor_pos[1])
+            (nx, ny) = wrap_board(len(board[0]), len(board), neighbor_pos[0], neighbor_pos[1])
 
             board[ny][nx].inc_neighbors()
 
     board[y][x].cellstate = CellState.ALIVE
 
+# slow
 def purge(board: list[list[Cell]], life: list[tuple[int, int]], death: list[tuple[int, int]]):
+    updated_life = []
+    updated_death = []
+
     for cellpos in death:
+        if board[cellpos[1]][cellpos[0]].cellstate != CellState.DEAD:
+            updated_death.append(cellpos)
         kill(board, cellpos[0], cellpos[1])
 
     for cellpos in life:
+        if board[cellpos[1]][cellpos[0]].cellstate != CellState.ALIVE:
+            updated_life.append(cellpos)
         birth(board, cellpos[0], cellpos[1])
 
-
+    return (updated_life, updated_death)
 
 def create_glider(board, x, y):
     birth(board, x,y)
@@ -100,6 +118,9 @@ SCREEN_HEIGHT = 1000
 SCREEN_WIDTH = 1000
 FPS = 30
 
+CELL_WIDTH = int(SCREEN_WIDTH/BOARD_WIDTH)
+CELL_HEIGHT = int(SCREEN_HEIGHT/BOARD_HEIGHT)
+
 # program begin
 board = create_board(BOARD_WIDTH, BOARD_HEIGHT)
 
@@ -114,15 +135,20 @@ if CHANCE != 0:
 
         birth(board, randx, randy)
 
-create_glider(board, 5, 5)
+# create_glider(board, 5, 5)
+
+screen.fill((255,255,255))
+(life, death) = check_cells(board)
+draw_board(screen, life, death, CELL_WIDTH, CELL_HEIGHT)
+pygame.display.update()
 
 while True:
-    screen.fill((255,255,255))
     (life, death) = check_cells(board)
-    purge(board, life, death)
-    draw_board(screen, life, SCREEN_WIDTH/BOARD_WIDTH, SCREEN_HEIGHT/BOARD_HEIGHT)
+    (updated_life, updated_death) = purge(board, life, death)
+    draw_board(screen, updated_life, updated_death, CELL_WIDTH, CELL_HEIGHT)
 
-    pygame.display.update()
     clock.tick(FPS)
+    pygame.display.update()
 
-    print(clock.get_fps())
+    print(clock.get_fps(), clock.get_rawtime())
+
