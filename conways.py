@@ -2,17 +2,14 @@
 import pygame
 import functools
 
-import rways
 
 from cell import CellState
 from cell import Cell
 
 from random import randint
 
-
-
 # helper functions
-def draw_board(screen: pygame.surface.Surface, living: list[tuple[int, int]], dead: list[tuple[int,int]], width: int, height: int):
+def draw_board(living: list[tuple[int, int]], dead: list[tuple[int,int]], width: int, height: int):
 
     list(map(lambda cell: pygame.draw.rect(screen, (255,255,255), pygame.Rect((cell[0]*width, cell[1]*height, width, height))), dead))
 
@@ -124,8 +121,8 @@ CELL_HEIGHT = int(SCREEN_HEIGHT/BOARD_HEIGHT)
 # program begin
 board = create_board(BOARD_WIDTH, BOARD_HEIGHT)
 
-clock = pygame.time.Clock()
 screen = displaysurface = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
+clock = pygame.time.Clock()
 pygame.display.set_caption("conways")
 
 if CHANCE != 0:
@@ -139,13 +136,13 @@ if CHANCE != 0:
 
 screen.fill((255,255,255))
 (life, death) = check_cells(board)
-draw_board(screen, life, death, CELL_WIDTH, CELL_HEIGHT)
+draw_board(life, death, CELL_WIDTH, CELL_HEIGHT)
 pygame.display.update()
 
 while True:
     (life, death) = check_cells(board)
     (updated_life, updated_death) = purge(board, life, death)
-    draw_board(screen, updated_life, updated_death, CELL_WIDTH, CELL_HEIGHT)
+    draw_board(updated_life, updated_death, CELL_WIDTH, CELL_HEIGHT)
 
     clock.tick(FPS)
     pygame.display.update()
