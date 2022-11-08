@@ -2,17 +2,21 @@
 import pygame
 import functools
 
+from connect import connect
+
 from cell import CellState
 from cell import Cell
 
 from random import randint
 
+neopixel, framebuffer, size = connect()
+
 # helper functions
-def draw_board(living: list[tuple[int, int]], dead: list[tuple[int,int]], width: int, height: int):
+def draw_board(living: list[tuple[int, int]], dead: list[tuple[int,int]]):
 
-    list(map(lambda cell: pygame.draw.rect(screen, (255,255,255), pygame.Rect((cell[0]*width, cell[1]*height, width, height))), dead))
+    list(map(lambda cell: framebuffer.pixel(cell[0], cell[1], 0x000000), dead))
 
-    list(map(lambda cell: pygame.draw.rect(screen, (0,0,0), pygame.Rect((cell[0]*width, cell[1]*height, width, height))), living))
+    list(map(lambda cell: framebuffer.pixel(cell[0], cell[1], 0xFF0000), living))
 
 def create_board(width, height):
     # cells dont need a position if they are dead.
@@ -106,12 +110,12 @@ def create_glider(board, x, y):
     birth(board, x+2,y-1)
 
 # constants
-BOARD_HEIGHT = 250
-BOARD_WIDTH = 250
+BOARD_WIDTH = 80
+BOARD_HEIGHT = 16
 CHANCE = 4 # higher =  lower
 
-SCREEN_HEIGHT = 1000
-SCREEN_WIDTH = 1000
+SCREEN_WIDTH = 800
+SCREEN_HEIGHT = 160
 FPS = 30
 
 CELL_WIDTH = int(SCREEN_WIDTH/BOARD_WIDTH)
@@ -133,18 +137,20 @@ if CHANCE != 0:
 
 # create_glider(board, 5, 5)
 
-screen.fill((255,255,255))
+framebuffer.fill(0)
+
 (life, death) = check_cells(board)
-draw_board(life, death, CELL_WIDTH, CELL_HEIGHT)
-pygame.display.update()
+draw_board(life, death)
+framebuffer.display()
 
 while True:
     (life, death) = check_cells(board)
     (updated_life, updated_death) = purge(board, life, death)
-    draw_board(updated_life, updated_death, CELL_WIDTH, CELL_HEIGHT)
+
+    draw_board(updated_life, updated_death)
 
     clock.tick(FPS)
-    pygame.display.update()
+    framebuffer.display()
 
     print(clock.get_fps(), clock.get_rawtime())
 
