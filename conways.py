@@ -9,7 +9,6 @@ from cell import Cell
 
 from random import randint
 
-neopixel, framebuffer, size = connect()
 
 # helper functions
 def draw_board(living: list[tuple[int, int]], dead: list[tuple[int,int]]):
@@ -114,17 +113,13 @@ BOARD_WIDTH = 80
 BOARD_HEIGHT = 16
 CHANCE = 4 # higher =  lower
 
-SCREEN_WIDTH = 800
-SCREEN_HEIGHT = 160
 FPS = 30
 
-CELL_WIDTH = int(SCREEN_WIDTH/BOARD_WIDTH)
-CELL_HEIGHT = int(SCREEN_HEIGHT/BOARD_HEIGHT)
-
 # program begin
+neopixel, framebuffer, size = connect()
+
 board = create_board(BOARD_WIDTH, BOARD_HEIGHT)
 
-screen = displaysurface = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
 clock = pygame.time.Clock()
 pygame.display.set_caption("conways")
 
