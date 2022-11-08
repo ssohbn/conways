@@ -2,7 +2,6 @@
 import pygame
 import functools
 
-
 from cell import CellState
 from cell import Cell
 
