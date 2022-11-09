@@ -1,5 +1,4 @@
 # imports
-import pygame
 import functools
 
 from connect import connect
@@ -120,8 +119,6 @@ neopixel, framebuffer, size = connect()
 
 board = create_board(BOARD_WIDTH, BOARD_HEIGHT)
 
-clock = pygame.time.Clock()
-pygame.display.set_caption("conways")
 
 if CHANCE != 0:
     for _ in range(0, int((BOARD_WIDTH * BOARD_HEIGHT) / CHANCE)):
@@ -144,8 +141,5 @@ while True:
 
     draw_board(updated_life, updated_death)
 
-    clock.tick(FPS)
     framebuffer.display()
-
-    print(clock.get_fps(), clock.get_rawtime())
 
