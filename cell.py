@@ -1,9 +1,9 @@
 class Cell():
-    def __init__(self, x, y) -> None:
+    def __init__(self) -> None:
         self.neighbors = 0
         self.cellstate: bool = False
-        self.x = x
-        self.y = y
+#        self.x = x
+#        self.y = y
 
     def inc_neighbors(self):
         self.neighbors += 1

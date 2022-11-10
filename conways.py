@@ -15,7 +15,7 @@ def draw_board(living: list[tuple[int, int]], dead: list[tuple[int,int]]):
 
 def create_board(width, height):
     # cells dont need a position if they are dead.
-    board= list(map(lambda _: list(map(lambda _: Cell(-1, -1), range(width))), range(height)))
+    board= list(map(lambda _: list(map(lambda _: Cell(), range(width))), range(height)))
     return board
 
 def neighboring_positions(x: int, y: int) -> list[tuple[int, int]]:
