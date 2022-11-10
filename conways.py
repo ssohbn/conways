@@ -103,9 +103,9 @@ def create_glider(board, x, y):
     birth(board, x+2,y-1)
 
 # constants
-BOARD_WIDTH = 80
+BOARD_WIDTH = 16
 BOARD_HEIGHT = 16
-CHANCE = 4 # higher =  lower
+CHANCE = 8 # higher =  lower
 
 FPS = 30
 

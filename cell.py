@@ -1,6 +1,5 @@
 class Cell():
     def __init__(self, x, y) -> None:
-
         self.neighbors = 0
         self.cellstate: bool = False
         self.x = x
