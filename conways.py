@@ -8,10 +8,11 @@ from random import randint
 
 # helper functions
 def draw_board(living: list[tuple[int, int]], dead: list[tuple[int,int]]):
+    color = randint(0, 16777216) # 256 ^3
 
     list(map(lambda cell: framebuffer.pixel(cell[0], cell[1], 0x000000), dead))
 
-    list(map(lambda cell: framebuffer.pixel(cell[0], cell[1], 0xFF0000), living))
+    list(map(lambda cell: framebuffer.pixel(cell[0], cell[1], color), living))
 
 def create_board(width, height):
     # cells dont need a position if they are dead.
@@ -103,14 +104,12 @@ def create_glider(board, x, y):
     birth(board, x+2,y-1)
 
 # constants
-BOARD_WIDTH = 16
-BOARD_HEIGHT = 16
 CHANCE = 8 # higher =  lower
-
 FPS = 30
 
 # program begin
 neopixel, framebuffer, size = connect()
+BOARD_WIDTH, BOARD_HEIGHT = size
 
 board = create_board(BOARD_WIDTH, BOARD_HEIGHT)
 
