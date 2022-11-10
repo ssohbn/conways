@@ -3,7 +3,7 @@ import neopixel
 from adafruit_pixel_framebuf import PixelFramebuffer, VERTICAL
 
 def connect() -> tuple[neopixel.NeoPixel, PixelFramebuffer, tuple[int, int]]: 
-    pixel_width = 80
+    pixel_width = 16
     pixel_height = 16
 
     pixel_pin = board.GP28_A2 # doesnt appear in autocomplete. is this correct?

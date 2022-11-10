@@ -1,14 +1,8 @@
-import enum
-
-class CellState(enum.Enum):
-    DEAD = 0
-    ALIVE = 1
-
 class Cell():
     def __init__(self, x, y) -> None:
 
         self.neighbors = 0
-        self.cellstate = CellState.DEAD
+        self.cellstate: bool = False
         self.x = x
         self.y = y
 

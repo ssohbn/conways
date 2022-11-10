@@ -1,9 +1,6 @@
 # imports
-import functools
-
 from connect import connect
 
-from cell import CellState
 from cell import Cell
 
 from random import randint
@@ -21,7 +18,6 @@ def create_board(width, height):
     board= list(map(lambda _: list(map(lambda _: Cell(-1, -1), range(width))), range(height)))
     return board
 
-@functools.cache
 def neighboring_positions(x: int, y: int) -> list[tuple[int, int]]:
     positions = [
             (x-1, y+1), (x, y+1), (x+1, y+1), 
@@ -38,7 +34,7 @@ def check_cells(board: list[list[Cell]]):
         if cell.neighbors == 3:
             life.append((x, y))
 
-        elif cell.cellstate == CellState.ALIVE:
+        elif cell.cellstate == True:
             if cell.neighbors == 2:
                 life.append((x, y))
             else:
@@ -50,7 +46,6 @@ def check_cells(board: list[list[Cell]]):
 
     return (life, death)
 
-@functools.cache
 def wrap_board(board_width: int, board_height: int, x: int, y: int):
     if y == board_height:
         y = 0
@@ -62,7 +57,7 @@ def wrap_board(board_width: int, board_height: int, x: int, y: int):
 
 #slow
 def kill(board: list[list[Cell]], x, y): 
-    board[y][x].cellstate = CellState.DEAD
+    board[y][x].cellstate = False
 
     for neighbor_pos in neighboring_positions(x, y):
         nx = neighbor_pos[0]
@@ -74,14 +69,14 @@ def kill(board: list[list[Cell]], x, y):
 
 #slow
 def birth(board: list[list[Cell]], x: int, y: int):
-    if board[y][x].cellstate == CellState.DEAD:
+    if board[y][x].cellstate == False:
         for neighbor_pos in neighboring_positions(x, y):
 
             (nx, ny) = wrap_board(len(board[0]), len(board), neighbor_pos[0], neighbor_pos[1])
 
             board[ny][nx].inc_neighbors()
 
-    board[y][x].cellstate = CellState.ALIVE
+    board[y][x].cellstate = True
 
 # slow
 def purge(board: list[list[Cell]], life: list[tuple[int, int]], death: list[tuple[int, int]]):
@@ -89,12 +84,12 @@ def purge(board: list[list[Cell]], life: list[tuple[int, int]], death: list[tupl
     updated_death = []
 
     for cellpos in death:
-        if board[cellpos[1]][cellpos[0]].cellstate != CellState.DEAD:
+        if board[cellpos[1]][cellpos[0]].cellstate != False:
             updated_death.append(cellpos)
         kill(board, cellpos[0], cellpos[1])
 
     for cellpos in life:
-        if board[cellpos[1]][cellpos[0]].cellstate != CellState.ALIVE:
+        if board[cellpos[1]][cellpos[0]].cellstate != True:
             updated_life.append(cellpos)
         birth(board, cellpos[0], cellpos[1])
 
